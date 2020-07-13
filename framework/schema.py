@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from graphene_django import DjangoObjectType
 from django.contrib.auth.models import User
 from framework.api.queries.user import UserBasicObj
+import blog.schema
 
 
 class UserType(DjangoObjectType):
@@ -36,7 +37,7 @@ class CreateUser(graphene.Mutation):
         return userStatusObj(status=True)
 
 
-class Query(graphene.ObjectType):
+class Query(blog.schema.Query, graphene.ObjectType):
     user = graphene.Field(UserBasicObj, username=graphene.String(required=True))
     users = graphene.List(UserBasicObj, sort=graphene.String())
 
@@ -54,7 +55,7 @@ class Query(graphene.ObjectType):
         return User.objects.values().all().order_by(sort)
 
 
-class Mutation(graphene.ObjectType):
+class Mutation(blog.schema.Mutation, graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()

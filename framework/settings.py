@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
     'easy_select2',
     'ckeditor',
+    'import_export',
+    'blog'
 ]
 
 MIDDLEWARE = [
