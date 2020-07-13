@@ -1,0 +1,10 @@
+db.sqlite3
+include/
+bin/
+.idea
+.Python
+blog/__pycache__/
+blog/migrations/
+framework/__pycache__/
+framework/api/__pycache__/
+lib/
