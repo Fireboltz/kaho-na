@@ -1,9 +1,20 @@
 import graphene
-from blog.models import Post
+from blog.models import Post, Like
 from framework.api.queries.user import UserBasicObj
 from framework.api.APIException import APIException
 from graphql_jwt.decorators import login_required
 from django.contrib.auth.models import User
+
+
+class LikesObj(graphene.ObjectType):
+    user = graphene.Field(UserBasicObj)
+    dateTime = graphene.DateTime()
+
+    def resolve_user(self, info):
+        return User.objects.values().get(id=self['user_id'])
+
+    def resolve_dateTime(self, info):
+        return self['dateTime']
 
 
 class PostObj(graphene.ObjectType):
@@ -13,6 +24,7 @@ class PostObj(graphene.ObjectType):
     draft = graphene.Boolean()
     pinned = graphene.Boolean()
     description = graphene.String(required=True)
+    likes = graphene.List(LikesObj)
 
     def resolve_title(self, info):
         return self['title']
@@ -32,9 +44,31 @@ class PostObj(graphene.ObjectType):
     def resolve_description(self, info):
         return self['description']
 
+    def resolve_likes(self, info):
+        return Like.objects.values().filter(post__title=self['title'])
+
 
 class postStatusObj(graphene.ObjectType):
     status = graphene.Boolean()
+
+
+class LikePost(graphene.Mutation):
+    class Arguments:
+        post = graphene.String(required=True)
+
+    Output = postStatusObj
+
+    @login_required
+    def mutate(self, info, post):
+        obj, created = Like.objects.get_or_create(
+            post=Post.objects.get(title=post),
+            user=info.context.user
+        )
+        if created:
+            return postStatusObj(status=True)
+        else:
+            obj.delete()
+            return postStatusObj(status=True)
 
 
 class CreatePost(graphene.Mutation):
@@ -49,7 +83,7 @@ class CreatePost(graphene.Mutation):
 
     @login_required
     def mutate(self, info, title, description, date, draft, pinned):
-        post = Post.objects.filter(title=title)
+        post = Post.objects.values().filter(title=title)
         if post.count() == 0:
             post = Post.objects.create(
                 title=title,
@@ -88,6 +122,7 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     createPost = CreatePost.Field()
+    likePost = LikePost.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

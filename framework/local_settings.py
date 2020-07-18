@@ -14,3 +14,5 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
+
+EMAIL_HOST_USER = 'EMAIL_HOST_USER'

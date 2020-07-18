@@ -1,10 +1,10 @@
 from django.contrib import admin
-from blog.models import Post
+from blog.models import Post, Like
 from import_export.admin import ImportExportModelAdmin, ExportActionMixin
 
 
 @admin.register(Post)
-class NewsAdmin(ImportExportModelAdmin, ExportActionMixin, admin.ModelAdmin):
+class PostAdmin(ImportExportModelAdmin, ExportActionMixin, admin.ModelAdmin):
     fieldsets = [
         ('Basic Details', {
             'fields': [
@@ -16,3 +16,17 @@ class NewsAdmin(ImportExportModelAdmin, ExportActionMixin, admin.ModelAdmin):
     ]
     list_display = ('title', 'date', 'pinned')
     list_filter = ('pinned', 'draft')
+
+
+@admin.register(Like)
+class LikeAdmin(ImportExportModelAdmin, ExportActionMixin, admin.ModelAdmin):
+    fieldsets = [
+        ('Basic Details', {
+            'fields': [
+                ('post', 'user'),
+                'dateTime'
+            ]
+        }),
+    ]
+    list_display = ('post', 'user', 'dateTime')
+    list_filter = ('post', 'user')
