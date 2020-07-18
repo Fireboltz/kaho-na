@@ -1,4 +1,5 @@
 import graphene
+from users.models import Profile
 
 
 class UserBasicObj(graphene.ObjectType):
@@ -7,7 +8,10 @@ class UserBasicObj(graphene.ObjectType):
     lastName = graphene.String()
     fullName = graphene.String()
     email = graphene.String()
-    isMembershipActive = graphene.Boolean()
+    isActive = graphene.Boolean()
+    phone = graphene.String()
+    bio = graphene.String()
+    private = graphene.Boolean()
     isAdmin = graphene.Boolean()
     joinDateTime = graphene.types.datetime.DateTime()
 
@@ -23,8 +27,17 @@ class UserBasicObj(graphene.ObjectType):
     def resolve_joinDateTime(self, info):
         return self['date_joined']
 
-    def resolve_isMembershipActive(self, info):
+    def resolve_isActive(self, info):
         return self['is_active']
+
+    def resolve_phone(self, info):
+        return Profile.objects.values().get(user__username=self['username'])['phone']
+
+    def resolve_bio(self, info):
+        return Profile.objects.values().get(user__username=self['username'])['bio']
+
+    def resolve_private(self, info):
+        return Profile.objects.values().get(user__username=self['username'])['private']
 
     def resolve_isAdmin(self, info):
         return self['is_superuser']

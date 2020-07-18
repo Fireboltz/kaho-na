@@ -10,6 +10,7 @@ from framework import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import hashlib
+from users.models import Profile
 
 secret_key = settings.SECRET_KEY
 from_email = settings.EMAIL_HOST_USER
@@ -75,6 +76,31 @@ class CreateUser(graphene.Mutation):
         return userStatusObj(status=True)
 
 
+class UpdateProfile(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        phone = graphene.String(required=True)
+        bio = graphene.String(required=True)
+        private = graphene.Boolean(required=True)
+
+    Output = userStatusObj
+
+    def mutate(self, info, username, phone, bio, private):
+        user = User.objects.values().get(username=info.context.user)
+        profile = Profile.objects.values().get(user=user)
+        if username is not None:
+            user.username = username
+        if phone is not None:
+            profile.phone = phone
+        if bio is not None:
+            profile.bio = bio
+        if private is not None:
+            profile.private = private
+        user.save()
+        profile.save()
+        return userStatusObj(status=True)
+
+
 class Query(blog.schema.Query, graphene.ObjectType):
     user = graphene.Field(UserBasicObj, username=graphene.String(required=True))
     users = graphene.List(UserBasicObj, sort=graphene.String())
@@ -100,6 +126,7 @@ class Mutation(blog.schema.Mutation, graphene.ObjectType):
     revoke_token = graphql_jwt.Revoke.Field()
     create_user = CreateUser.Field()
     verify_otp = VerifyOTP.Field()
+    update_profile = UpdateProfile.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

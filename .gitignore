@@ -8,3 +8,5 @@ blog/migrations/
 framework/__pycache__/
 framework/api/__pycache__/
 lib/
+**/migrations/**
+**/__pycache__/**

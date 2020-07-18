@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'easy_select2',
     'ckeditor',
     'import_export',
-    'blog'
+    'blog',
+    'users'
 ]
 
 MIDDLEWARE = [
